@@ -1,0 +1,59 @@
+volumes:
+  psql-data:
+
+services:
+  python-app:
+    build:
+      context: .
+      dockerfile: docker/python/Dockerfile
+    image: python-rag
+    container_name: python-app
+    env_file:
+      - ./env
+    depends_on:
+      - postgres
+    command: ["wait-for-postgres.sh", "", "python", "public/server.py"]
+    ports:
+      - 2037:80
+    networks:
+      app-env:
+
+  ollama-container:
+    image: ollama/ollama
+    container_name: ollama-container
+    working_dir: /
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    volumes:
+      - ./ollama:/root/.ollama
+      - ./.env:/.env
+      - ./docker/python/entrypoint.sh:/entrypoint.sh
+    networks:
+      app-env:
+
+  postgres:
+    hostname: postgres
+    image: ankane/pgvector
+    restart: always
+    env_file:
+      - ./env
+    volumes:
+      - ./script/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      app-env:
+      interface:
+
+  pgadmin:
+    image: fenglc/pgadmin4
+    container_name: pgadmin
+    env_file:
+      - ./env
+    depends_on:
+      - postgres
+    ports:
+      - 5050:5050
+    networks:
+      interface:
+
+networks:
+  app-env:
+  interface:
