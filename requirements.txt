@@ -1,5 +1,5 @@
 openai>=1.0
-requests>=2.31
+requests>=2.34.2
 psycopg2-binary>=2.9
 python-dotenv>=1.0
 tiktoken>=0.7
