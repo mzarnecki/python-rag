@@ -10,6 +10,7 @@ services:
     container_name: python-app
     env_file:
       - ./env
+      - ./.env
     depends_on:
       - postgres
     command: ["wait-for-postgres.sh", "", "python", "public/server.py"]
